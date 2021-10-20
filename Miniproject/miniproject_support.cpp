@@ -3,7 +3,7 @@
 
 // THIS FILE IS TEMPORARILY NOT BEING USED!
 
-void ImportDataFromFile(Cell (&_grid)[9][9]){
+bool ImportDataFromFile(Cell (&_grid)[9][9]){
 
     std::ifstream indata ("inputfile.txt");
 
@@ -25,11 +25,11 @@ void ImportDataFromFile(Cell (&_grid)[9][9]){
         std::cout << "Cannot open data file!" << std::endl;
     }
 
-    return;
+    return true;
 }
 
 
-void PrintGrid(Cell (&_grid)[9][9]){
+bool PrintGrid(Cell (&_grid)[9][9]){
 
     int row = 0, column = 0;
 
@@ -43,4 +43,5 @@ void PrintGrid(Cell (&_grid)[9][9]){
         }
         std::cout << std::endl;
     }
+    return true;
 }

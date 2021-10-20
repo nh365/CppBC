@@ -3,7 +3,7 @@
 // FUNCTIONS THAT WERE MOVED FROM HEADER FILE TO HERE FOR DEBUGGING PURPOSES
 
 // Initialize cells
-void Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
+bool Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
 
     Cell *grid_ptr = &(_grid[0][0]); // Points to the top of the, Grid[0][0]
     Cell *my_cell_ptr = &(_grid[_row - 1][_column - 1]);
@@ -66,6 +66,8 @@ void Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
     }
     // std::cout << "Grid element (r/c): " << my_coordinates.row << "," << my_coordinates.column << "   "; 
     // std::cout << "The current number of peers are: " << number_of_peers << std::endl;
+
+    return true;
 }
 
 // Find values that are not identified in peers.
@@ -79,8 +81,6 @@ bool Cell::IdentifyCandidates(){
 
     if (this->solved_value)
     {
-//         std::cout << "Value given at start: " << this->solved_value << " in " << this->my_coordinates.row << "," << this->my_coordinates.column << std::endl;
-
         // This Cell has a solved value.
         // Clear all other possible values.
         this->possible_values.clear();
@@ -89,7 +89,7 @@ bool Cell::IdentifyCandidates(){
         // For every peer...
         for (size_t i = 0; i < number_of_peers; i++)
         {
-            // ...check if the solved_value is anything but 0
+            // ...check if the peer solved_value is anything but 0
             // and if so, remove it from my list of possible values.
             peer_cell_ptr = this->peers[i];
             if (peer_cell_ptr->solved_value != 0)
@@ -118,10 +118,10 @@ bool Cell::IdentifyCandidates(){
             this->solved_value = this->possible_values.front();
             std::cout << "There is only one possible value: " << this->solved_value << " in " << this->my_coordinates.row << "," << this->my_coordinates.column << std::endl;
         
-            return true;
+            return true;  // Value found, return true.
         }
     }
-    return false;
+    return false; // Still more than one possible value, return false.
 }
 // END OF HEADER FILE INSERT
 // ---------------------------------------------------------
@@ -164,7 +164,7 @@ std::cout << "New smallest detected: " << smallest_found << std::endl;
     return closest_ptr;    
 }
 
-void ImportDataFromFile(Cell (&_grid)[9][9]){
+bool ImportDataFromFile(Cell (&_grid)[9][9]){
 
     std::ifstream indata ("inputfile.txt");
 
@@ -188,11 +188,11 @@ void ImportDataFromFile(Cell (&_grid)[9][9]){
         std::cout << "Cannot open data file!" << std::endl;
     }
 
-    return;
+    return true;
 }
 
 
-void PrintGrid(Cell (&_grid)[9][9]){
+bool PrintGrid(Cell (&_grid)[9][9]){
 
     int row = 0, column = 0;
 
@@ -205,6 +205,7 @@ void PrintGrid(Cell (&_grid)[9][9]){
         }
         std::cout << std::endl;
     }
+    return true;
 }
 
 

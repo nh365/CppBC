@@ -22,7 +22,7 @@ public:
     size_t solved_value;
 
 // Methods
-    void InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column);
+    bool InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column);
     bool IdentifyCandidates();
     size_t ReturnNumberOfPossibleValues();
 
@@ -31,8 +31,8 @@ public:
 // Data declarations
 
 // Function declarations
-void ImportDataFromFile(Cell (&_grid)[9][9]);
-void PrintGrid(Cell (&_grid)[9][9]);
+bool ImportDataFromFile(Cell (&_grid)[9][9]);
+bool PrintGrid(Cell (&_grid)[9][9]);
 Cell* ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]);
 
 size_t Cell::ReturnNumberOfPossibleValues(){
