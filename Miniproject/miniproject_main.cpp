@@ -6,9 +6,6 @@
 void Square::InitSquare(Square (&_grid)[9][9], size_t &_row, size_t &_column){
 
     Square *grid_ptr = &(_grid[0][0]); // Points to the top of the, Grid[0][0]
-// TIPS FRÅN JOHAN
-//    Square *grid_ptr_TEMP [9][9] = {};
-//    grid_ptr_TEMP [i][j]->print_square();
     Square *my_square_ptr = &(_grid[_row - 1][_column - 1]);
     Square *peer_square_ptr = nullptr;
     size_t number_of_peers = 0;
@@ -67,7 +64,6 @@ void Square::InitSquare(Square (&_grid)[9][9], size_t &_row, size_t &_column){
             }
         }
     }
-    // Print for fun, remove later!
     // std::cout << "Grid element (r/c): " << my_coordinates.row << "," << my_coordinates.column << "   "; 
     // std::cout << "The current number of peers are: " << number_of_peers << std::endl;
 }
@@ -194,24 +190,6 @@ void ImportDataFromFile(Square (&_grid)[9][9]){
     return;
 }
 
-
-/* void PrintCompletedData(Square (*_grid[9][9])){
-
-    int row = 0, column = 0;
-
-    std::cout << "----------------------------" << std::endl;
-
-    // Print the first row
-    for(row = 0; row < 9; row++){
-        for(column = 0; column < 9; column++)
-        {
-            std::cout << _grid [row] [column].solved_value << " ";
-//            std::cout << "," << sudoku_table [row] [column].verified;
-//            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-} */
 
 void PrintGrid(Square (&_grid)[9][9]){
 
