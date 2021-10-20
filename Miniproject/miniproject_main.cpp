@@ -242,6 +242,7 @@ int main(){
 
 
     // Identify possible values and solve the easy ones
+    // TODO: move to separate function
     do
     {
         value_added = false;
