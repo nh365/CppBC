@@ -23,11 +23,10 @@ public:
 
 // Methods
     // Default constructor
-    Square();
-//    void InitSquare(size_t &_row, size_t &_column);
-//    void Square::InitSquare(Square *_grid, size_t &_row, size_t &_column);
-    void Square::InitSquare(Square (&_grid)[9][9], size_t &_row, size_t &_column);
-    void IdentifyPossibleValues();
+//    Square();
+    void InitSquare(Square (&_grid)[9][9], size_t &_row, size_t &_column);
+    bool IdentifyPossibleValues();
+    size_t ReturnNumberOfPossibleValues();
 
 /*     void SetValue(const int &_val){
         this->solved_value = _val;
@@ -42,19 +41,24 @@ public:
 
 // Data declarations
 
-
 // Function declarations
-// Taken from brute force version, perhaps not needed!?
-void ImportDataFromFile();
-void PrintGrid();
+void ImportDataFromFile(Square (&_grid)[9][9]);
+void PrintGrid(Square (&_grid)[9][9]);
+Square* ReturnSquareWithFewestAlternatives(Square (&_grid)[9][9]);
 
+size_t Square::ReturnNumberOfPossibleValues(){
 
-// Initialize the squares
+    return(this->possible_values.size());
+}
+
+/* // Initialize the squares
 void Square::InitSquare(Square (&_grid)[9][9], size_t &_row, size_t &_column){
+//void Square::InitSquare(Square _grid[][9], size_t &_row, size_t &_column){
 
     Square *grid_ptr = &_grid[0][0]; // Points to the top of the, Grid[0][0]
     Square *my_square_ptr = nullptr;
     Square *peer_square_ptr = nullptr;
+    size_t number_of_peers = 0;
 
     // Receive the instantiated Square coordinates
     // Init possible value
@@ -83,46 +87,83 @@ void Square::InitSquare(Square (&_grid)[9][9], size_t &_row, size_t &_column){
     }
     // Add all column peers, disregard my position
     // Get the length of the peers vector
-    ----->  peers.size()
+    // Really needed??? Always 8?
+    number_of_peers = peers.size();
     for (size_t i = 0; i < 9; i++)
     {
-        if (i!=my_coordinates.row) // Do not add myself
+        if ((i+1)!=my_coordinates.row) // Do not add myself
         {
             this->peers.push_back(peer_square_ptr); // Create new entry
-            this->peers[i] = &_grid[my_coordinates.row-1][i];
+            this->peers[number_of_peers + i] = &_grid[my_coordinates.row-1][i];
         }
     }
     // Add all unit peers, disregard my position
+    // Get the length of the peers vector
+    // Really needed??? Always 8?
+    number_of_peers = peers.size();
     for (size_t i = (my_coordinates.row - my_coordinates.row % 3); i < ((my_coordinates.row - my_coordinates.row % 3)+3); i++)
     {
         for (size_t j = (my_coordinates.column - my_coordinates.column % 3); j < ((my_coordinates.column - my_coordinates.column % 3)+3); j++){
 
             // Do not add myself or those added by my row or column.
-            if ( (i != my_coordinates.row ) && ( j != my_coordinates.column) ) // Do not add myself
+            if ( (i != (my_coordinates.row - 1) ) && ( j != (my_coordinates.column - 1)) ) // Do not add myself
             {
                 this->peers.push_back(peer_square_ptr); // Create new entry
-                this->peers[i] = &_grid[my_coordinates.row-1][i];
+                this->peers[number_of_peers + i] = &_grid[my_coordinates.row-1][i];
 
-
-
-                peers.push_back(position()); // Create new entry
-                peers[i].row = i;
-                peers[i].column = j;
             }
         }
     }
-}
-// Find values that are not identified in peers.
+    // Print for fun, remove later!
+    // Get the length of the peers vector
+    // Really needed??? Always 8?
+    number_of_peers = peers.size();
+    std::cout << "Grid element (r/c): " << my_coordinates.row << "," << my_coordinates.column << "   "; 
+    std::cout << "The current number of peers are: " << number_of_peers << std::endl;
+} */
+
+// MOVED TO CPP FILE FOR DEBUGGING PURPOSES
+/* 
+// Find alues that are not identified in peers.
 void Square::IdentifyPossibleValues(){
 
+    Square *peer_square_ptr;
+
+    // For every peer...
     for (size_t i = 0; i < this->peers.size(); i++)
     {
-        if ( this->peers.at(i).......  != 0 )p
+        // ...check if the solved_value is anything but 0
+        // and if so, remove it from my list of possible values.
+        peer_square_ptr = this->peers[i];
+        if (peer_square_ptr->solved_value != 0)
         {
-            this->possible_values.push_back(size_t);
-//            this->possible_values[i] = Grid[this->peers.at(i).row][this->peers.at(i).column].solved_value;
+            // There is a value defined.
+            // Remove this value from my possible values.
+            for (size_t i = 0; i < this->possible_values.size(); i++)
+            {
+                // Is this value the same as my peers?
+                if (peer_square_ptr->solved_value == this->possible_values.at(i))
+                {
+                    // The values match.
+                    // Remove it from my list.
+                    this->possible_values.erase(this->possible_values.begin() + i);
+                    std::cout << "Value: " << peer_square_ptr->solved_value << " erased from possible values vector." << std::endl;
+                    break;
+                }
+                
+            }
+            
         }
-    }
+        
+
+
+
+// OLD
+/*         if ( this->peers.at(i) != 0 ){
+
+            this->possible_values.push_back(size_t);
+        } */
+/*    }
     
     // If there is only one possible solution 
     // set solved_value
@@ -130,7 +171,7 @@ void Square::IdentifyPossibleValues(){
 
         this->solved_value = this->possible_values.front();
     }
-}
+} */
 
 
 

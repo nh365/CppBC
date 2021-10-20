@@ -1,8 +1,9 @@
-#include "mini_def.h"
-#include "minibf_def.h"
+ #include "mini_def.h"
+// #include "minibf_def.h"
 
+// THIS FILE IS TEMPORARILY NOT BEING USED!
 
-void ImportDataFromFile(){
+void ImportDataFromFile(Square (&_grid)[9][9]){
 
     std::ifstream indata ("inputfile.txt");
 
@@ -14,7 +15,7 @@ void ImportDataFromFile(){
         {
             for (column = 0; column < 9; column++)
             {
-                indata >> Grid[row][column].solved_value;
+                indata >> _grid[row][column].solved_value;
 
 //            std::cout << "Added cell value:" << sudoku_table [row] [column].value << std::endl;
             }
@@ -30,7 +31,7 @@ void ImportDataFromFile(){
 }
 
 
-void PrintCompletedData(){
+/* void PrintCompletedData(Square (*_grid[9][9])){
 
     int row = 0, column = 0;
 
@@ -40,15 +41,15 @@ void PrintCompletedData(){
     for(row = 0; row < 9; row++){
         for(column = 0; column < 9; column++)
         {
-            std::cout << Grid [row] [column].solved_value << " ";
+            std::cout << _grid [row] [column].solved_value << " ";
 //            std::cout << "," << sudoku_table [row] [column].verified;
 //            std::cout << " ";
         }
         std::cout << std::endl;
     }
-}
+} */
 
-void PrintGrid(){
+void PrintGrid(Square (&_grid)[9][9]){
 
     int row = 0, column = 0;
 
@@ -58,7 +59,7 @@ void PrintGrid(){
     for(row = 0; row < 9; row++){
         for(column = 0; column < 9; column++)
         {
-            std::cout << sudoku_table [row] [column].value << " ";
+            std::cout << _grid [row] [column].solved_value << " ";
 //            std::cout << "," << sudoku_table [row] [column].verified;
 //            std::cout << " ";
         }
