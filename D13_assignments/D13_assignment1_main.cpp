@@ -1,4 +1,5 @@
 // Based on previous assingment borrowed from someone.
+// My stuff is in function CompareShapes()
 
 #include "D13_assignment1.h"
 
