@@ -348,7 +348,6 @@ bool InitGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
 
 bool SolveEasy(Cell (&_grid)[9][9]){
 
-//    Cell *cell_ptr = nullptr;
     bool value_added = false;
     bool value_added_return = false;
 
@@ -360,11 +359,8 @@ bool SolveEasy(Cell (&_grid)[9][9]){
         {
             for (size_t j = 0; j < 9; j++)
             {    
-//                cell_ptr = &(_grid[i][j]); 
-//                if(cell_ptr->IdentifyCandidates())
-                if(_grid[i][j].IdentifyCandidates() )
+                if(_grid[i][j].IdentifyCandidates() ){
 
-                {
                     value_added = true; // New value solved, make another run.
                     value_added_return = true;
                 }
@@ -379,10 +375,26 @@ bool SolveEasy(Cell (&_grid)[9][9]){
 bool SolveDifficult(Cell (&_grid)[9][9]){
 
     Cell *cell_copy_ptr;
+    size_t value_under_evaluation = 0;
+
+
     // Find the Cell with the lowest number of possible entries.
     // Set first value and evaluate using brute force...
     cell_copy_ptr = ReturnCellWithFewestAlternatives(_grid);
 
+    if (cell_copy_ptr->ReturnNumberOfPossibleValues() == 2)
+    {
+        // The Cell has two possible values.
+        // Choose the first one and see if that works.
+        value_under_evaluation = cell_copy_ptr->possible_values.at(1);
+
+        // If this value is present in peers, remove it.
+
+
+
+        
+    } else std::cout << "There are only cells with three or more alternatives, use brute force." << std::endl;
+    
     // Use the copied grid first
 //    do
 //    {
@@ -405,7 +417,7 @@ bool SolveDifficult(Cell (&_grid)[9][9]){
 
 
 // Move to header file...
-// Solves sudoku brute force method.
+// Not yet in use...
 bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){ 
 
         Cell *cell_ptr = &_grid[this->my_coordinates.row][this->my_coordinates.column];
@@ -422,13 +434,9 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
         for (size_t i = 0; i < nr_candidates; i++)
         {
            if(!NumberCheck(i)){
-                // The proposed number seems ok,
-                // Place it in the position.
-                // then call recursively and test next empty cell.
-                // candidate_under_eval = this->possible_values.at(i);
-                
-                // Set candidate under evaluation in copy and try to solve.
-//                cell_copy_ptr->solved_value = this->possible_values.at(i);
+                // The proposed number candidate is not used by peers,
+                // Set as solved value.
+                // Then call recursively and test next empty cell.
 
                 this->solved_value = this->possible_values.at(i);
 
