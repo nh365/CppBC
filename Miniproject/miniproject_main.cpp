@@ -1,4 +1,9 @@
 #include "mini_def.h"
+
+
+
+
+
 // ---------------------------------------------------------
 // FUNCTIONS THAT WERE MOVED FROM HEADER FILE TO HERE FOR DEBUGGING PURPOSES
 
@@ -7,7 +12,7 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
 
     Cell *grid_ptr = &(_grid[0][0]); // Points to the top of the Grid[0][0]
     Cell *grid_copy_ptr = &(_grid_copy[0][0]); // TBD: Points to the top of the sandbox (sb) Grid[0][0]    
-    Cell *my_cell_ptr = &(_grid[_row - 1][_column - 1]);
+    Cell *my_cell_ptr = &(_grid[_row][_column]);
     Cell *peer_cell_ptr = nullptr;
     size_t number_of_peers = 0;
 
@@ -21,28 +26,29 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
 //    this->my_coordinates.box_left_column = _column - _column % 3;
 
 // UGLY INIT OF BOX VALUES...CHANGE LATER
-    if (_row < 4 )
-    {
-        this->my_coordinates.box_top_row = 1;
-    } else if (3 < _row < 7 )
-    {
-        this->my_coordinates.box_top_row = 4;
-    } else if ( 6 < _row )
-    {
-        this->my_coordinates.box_top_row = 7;
-    }
 
-    if (_column < 4 )
+    if (_row < 3 )
     {
-        this->my_coordinates.box_left_column = 1;
-    } else if (3 < _row < 7 )
+        this->my_coordinates.box_top_row = 0;
+    } else if ( (2 < _row ) && (_row < 6) )
     {
-        this->my_coordinates.box_left_column = 4;
-    } else if ( 6 < _row )
+        this->my_coordinates.box_top_row = 3;
+    } else if ( (5 < _row ) && (_row < 9) ) 
     {
-        this->my_coordinates.box_left_column = 7;
-    }
-    
+        this->my_coordinates.box_top_row = 6;
+    } else std::cout << "Row is out of bounds." << std::endl;
+
+    if (_column < 3 )
+    {
+        this->my_coordinates.box_left_column = 0;
+    } else if ( (2 < _column ) && (_column < 6) )
+    {
+        this->my_coordinates.box_left_column = 3;
+    } else if ( (5 < _column ) && (_column < 9) ) 
+    {
+        this->my_coordinates.box_left_column = 6;
+    } else std::cout << "Column is out of bounds." << std::endl;
+
 
     // Init possible values
     for (size_t i = 1; i < 10; i++)
@@ -53,12 +59,11 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
     // Add all row peers, disregard my position
     for (size_t i = 0; i < 9; i++)
     {
-        if (i != (this->my_coordinates.column - 1)) // Do not add myself
+        if (i != (this->my_coordinates.column)) // Do not add myself
         {
             // Create new entry of Cell pointer in peer vector
             // Point peer_cell_ptr to the correct cell.
-            this->peers.push_back(&(_grid[my_coordinates.row-1][i]));             
-// FEL?            this->peers.push_back(&(_grid[i][my_coordinates.column-1])); 
+            this->peers.push_back(&(_grid[my_coordinates.row][i]));             
             number_of_peers++;
 // std::cout << "Row peer added, the current number of peers are: " << number_of_peers << std::endl;
 
@@ -67,22 +72,22 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
     // Add all column peers, disregard my position
     for (size_t i = 0; i < 9; i++)
     {
-        if (i != (my_coordinates.row - 1)) // Do not add myself
+        if (i != (my_coordinates.row)) // Do not add myself
         {
             // Create new entry of Cell pointer in peer vector
             // Point peer_cell_ptr to the correct cell.
-            this->peers.push_back(&(_grid[i][my_coordinates.column-1])); 
+            this->peers.push_back(&(_grid[i][my_coordinates.column])); 
             number_of_peers++;
 // std::cout << "Column peer added, the current number of peers are: " << number_of_peers << std::endl;
         }
     }
-    // Add all unit peers, disregard my position
-    for (size_t i = ((my_coordinates.row -1 ) - (my_coordinates.row - 1) % 3); i < (((my_coordinates.row - 1) - (my_coordinates.row - 1) % 3) + 3); i++)
+    // Add all box peers, disregard my position
+    for (size_t i = my_coordinates.box_top_row; i < (my_coordinates.box_top_row + 3); i++)
     {
-        for (size_t j = ((my_coordinates.column - 1) - (my_coordinates.column - 1) % 3); j < (((my_coordinates.column - 1) - (my_coordinates.column - 1) % 3) + 3); j++){
+        for (size_t j = my_coordinates.box_left_column; j < (my_coordinates.box_left_column + 3); j++){
 
             // Do not add myself or those added by my row or column.
-            if ( (i != (my_coordinates.row - 1) ) && ( j != (my_coordinates.column - 1)) ) // Do not add myself or any peer in my row or column
+            if ( (i !=  my_coordinates.row ) && ( j != my_coordinates.column ) ) // Do not add myself or any peer in my row or column
             {              
                 // Create new entry of Cell pointer in peer vector
                 // Point peer_cell_ptr to the correct cell.                
@@ -174,76 +179,6 @@ bool Cell::NumberCheck(size_t candidate_index){
     return false;
 }
 
-bool CheckRow(Cell (&_grid)[9][9], int row,int column,int candidate){
-
-    for(int i = 0; i<9; i++){
-        if(_grid[row][i].solved_value == candidate){
-            return false;
-        }
-    }
-    return true;
-}
-
-bool CheckColumn(Cell (&_grid)[9][9], int row,int column,int candidate){
-
-    for(int i = 0; i<9; i++){
-        if(_grid[i][column].solved_value == candidate){
-            return false;
-        }
-    }
-    return true;
-}
-
-bool CheckBox(Cell (&_grid)[9][9], int first_box_row,int first_box_column,int candidate){
-
-    for(int i = first_box_row; i<first_box_row+3; i++){
-        for(int j = first_box_column; j<first_box_column+3; j++){
-            if(_grid[i][j].solved_value == candidate){
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool NumberCheck(Cell (&_grid)[9][9], size_t _row,size_t _column,size_t candidate){
-    // Is this a possible number to use in this spot?
-    // Check if unused in row, column box.
-
-//    int first_box_row = row - row % 3;
-//    int first_box_column = column - column % 3;
-// UGLY INIT OF BOX VALUES...CHANGE LATER
-
-    int first_box_row = 0;
-    int first_box_column = 0;
-
-    if (_row < 3 )
-    {
-        first_box_row = 0;
-    } else if ( (2 < _row ) && (_row < 6) )
-    {
-        first_box_row = 3;
-    } else if ( (5 < _row ) && (_row < 9) ) 
-    {
-        first_box_row = 6;
-    } else std::cout << "Row is out of bounds." << std::endl;
-
-    if (_column < 3 )
-    {
-        first_box_column = 0;
-    } else if ( (2 < _column ) && (_column < 6) )
-    {
-        first_box_column = 3;
-    } else if ( (5 < _column ) && (_column < 9) ) 
-    {
-        first_box_column = 6;
-    } else std::cout << "Column is out of bounds." << std::endl;
-
-    if(CheckRow(_grid, _row,_column,candidate) && CheckColumn(_grid,_row,_column,candidate) && CheckBox(_grid, first_box_row, first_box_column, candidate)){
-        return true;
-    }
-    return false;
-}
 
 // END OF HEADER FILE INSERT
 // ---------------------------------------------------------
@@ -266,7 +201,7 @@ collect2: error: ld returned 1 exit status
 Cell* ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]){
     size_t smallest_found = 9;
     size_t returned_possible = 9;
-    Cell *closest_ptr = nullptr;
+    Cell *smallest_ptr = nullptr;
     Cell *cell_ptr;
 
     for (size_t i = 0; i < 9; i++)
@@ -278,14 +213,14 @@ Cell* ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]){
             if ( (returned_possible < smallest_found) && (returned_possible > 0))
             {
                 smallest_found = returned_possible;
-                closest_ptr = cell_ptr;
+                smallest_ptr = cell_ptr;
 //                std::cout << "New smallest detected: " << smallest_found << std::endl;
 
             }
             
         }
     }
-    return closest_ptr;    
+    return smallest_ptr;    
 }
 
 bool ImportDataFromFile(Cell (&_grid)[9][9]){
@@ -401,7 +336,49 @@ bool CopyGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
 
 }
 
+bool InitGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
 
+    for (size_t i = 0; i < 9; i++)
+    {
+        for (size_t j = 0; j < 9; j++)
+        {   
+//            cell_ptr = &(Grid[i][j]); 
+//            cell_ptr->InitCell(Grid,GridCopy,i,j);
+            _grid[i][j].InitCell(_grid,_grid_copy,i,j);
+        }
+    }
+    return true;
+}    
+
+
+bool SolveEasy(Cell (&_grid)[9][9]){
+
+//    Cell *cell_ptr = nullptr;
+    bool value_added = false;
+    bool value_added_return = false;
+
+    do
+    {
+        value_added = false;
+
+        for (size_t i = 0; i < 9; i++)
+        {
+            for (size_t j = 0; j < 9; j++)
+            {    
+//                cell_ptr = &(_grid[i][j]); 
+//                if(cell_ptr->IdentifyCandidates())
+                if(_grid[i][j].IdentifyCandidates() )
+
+                {
+                    value_added = true; // New value solved, make another run.
+                    value_added_return = true;
+                }
+            }
+        }
+    } while (value_added);
+
+    return value_added_return;
+}
 
 
 // END OF SUPPORT FUNCTIONS TO BE MOVED TO SEPARATE CPP-FILE
@@ -412,8 +389,8 @@ bool CopyGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
 // Solves sudoku brute force method.
 bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){ 
 
-        Cell *cell_ptr = &_grid[this->my_coordinates.row -1][this->my_coordinates.column -1];
-        Cell *cell_copy_ptr = &_grid_copy[this->my_coordinates.row -1][this->my_coordinates.column -1];
+        Cell *cell_ptr = &_grid[this->my_coordinates.row][this->my_coordinates.column];
+        Cell *cell_copy_ptr = &_grid_copy[this->my_coordinates.row][this->my_coordinates.column];
 
 
         // Test with the first candidate, then the second etc...
@@ -500,67 +477,7 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
 
 
 
-std::pair<int,int> GetEmptyCell(Cell (&_grid)[9][9] ){
 
-    for(int row = 0; row < 9; row++){
-        for(int column = 0; column < 9; column++){
-
-            if(_grid [row] [column].solved_value == 0){
-
-//                std::cout << "GetEmptyCell(): " << row << "," << column << std::endl;                
-                return std::make_pair(row, column);
-
-            }
-        }
-    }
-//    std::cout << "GetEmptyCell(): 9,9" << std::endl;                
-    return std::make_pair(9,9);
-}
-
-// Solves sudoku brute force method.
-// This is an ineffective version but it works. Now focus is on good version...
-bool SolveSudokuBF(Cell (&_grid)[9][9]){ 
-
-    size_t row,column;
-    
-    // Get coordintates of first empty cell.
-    std::pair<int,int> row_and_column = GetEmptyCell(_grid);
-
-    if(row_and_column.first == 9 && row_and_column.second == 9 ){
-        // The table is filled in.
-//        std::cout << "The table is filled in. First check!" << std::endl;
-        return true;
-    }else{
-        
-        row = row_and_column.first;
-        column = row_and_column.second;
-
-        // Test for possible number
-        for(int candidate=1; candidate<=9; candidate++){
-
-            if(NumberCheck(_grid, row, column, candidate)){
-                // The proposed number seems ok,
-                // Place it in the position.
-                // then call recursively and test next empty cell.
-
-                _grid [row] [column].solved_value = candidate;
-
-//                std::cout << "Assigning value: " << candidate << " to " << row << "," << column << std::endl;
-
-
-                if(SolveSudokuBF(_grid)){
-                    return true;
-                }
-
-                // The proposed number did not work, try next.
-                _grid [row] [column].solved_value = 0;  // Why, är det inte redan noll???
-            }
-        }
-    }
-//    PrintGrid(_grid);
-    return false;   
-
-}
 
 
 int main(){
@@ -570,66 +487,37 @@ int main(){
 
     Cell *cell_ptr = nullptr;
     Cell *cell_copy_ptr = nullptr;    
-    bool value_added = false;
+
 
     // Init grid
-    size_t a,b;
-    for (size_t i = 0; i < 9; i++)
-    {
-        a = i + 1;
-        for (size_t j = 0; j < 9; j++)
-        {   
-            b = j + 1;
-            cell_ptr = &(Grid[i][j]); 
-            cell_ptr->InitCell(Grid,GridCopy,a,b);
-        }
-    }
+    InitGrid(Grid,GridCopy);
+    std::cout << "Initialized empty Grid:" << std::endl;
+    PrintGrid(Grid);
 
-    // Grid initialized
     // Import table to be solved
     ImportDataFromFile(Grid);
-
-    // Print original table
-
     std::cout << "Input table:" << std::endl;
-
-    PrintGridSimple(Grid);
+    PrintGrid(Grid);
+//    PrintGridSimple(Grid);
 
     // Identify possible values and solve the easy ones
-    // TODO: move to separate function
-    do
-    {
-        value_added = false;
-
-        for (size_t i = 0; i < 9; i++)
-        {
-            for (size_t j = 0; j < 9; j++)
-            {    
-                cell_ptr = &(Grid[i][j]); 
-                if(cell_ptr->IdentifyCandidates())
-                {
-                    value_added = true; // New value solved, make another run.
-                }
-            }
-        }
-    } while (value_added);
-    
-
+    SolveEasy(Grid);
     // Print data for comparison
     std::cout << "Intermediary result using constraint propagation:" << std::endl;
-    PrintGridSimple(Grid);
+    PrintGrid(Grid);
+//    PrintGridSimple(Grid);
 
-    // Make a sandbox table to play around in
-    // Make a copy of the grid and print it for comparison
-    if (CopyGrid(Grid,GridCopy)) {
+
+    // Make a sandbox grid for evalating guesses in
+    CopyGrid(Grid,GridCopy);
+//    if (CopyGrid(Grid,GridCopy)) {
 //        std::cout << "Copy of Grid:" << std::endl;
 //        PrintGrid(GridCopy);
-    }
+//    }
 
 
     // Find the Cell with the lowest number of possible entries.
     // Set first value and evaluate using brute force...
-
     cell_copy_ptr = ReturnCellWithFewestAlternatives(GridCopy);
 
     // Use the copied grid first
@@ -646,7 +534,7 @@ int main(){
 //        }    
 //    } while ( 1 );
         
-     
+    // Solve the last unknowns with brute force 
     if(SolveSudokuBF(GridCopy)){
         std::cout << "Solution using brute force as final step:" << std::endl;
 //        PrintGrid(GridCopy);
@@ -657,9 +545,6 @@ int main(){
         std::cout << "Cannot solve!" << std::endl;
         PrintGrid(GridCopy);
     }
-
-//    } else std::cout << "Table filled in, brute force not needed." << std::endl;
-
 
     return(0);
 }

@@ -45,14 +45,19 @@ bool ImportDataFromFile(Cell (&_grid)[9][9]);
 bool PrintGrid(Cell (&_grid)[9][9]);
 Cell* ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]);
 bool CopyGrid(Cell (&_grid_copy)[9][9], Cell (&_grid)[9][9]);
-bool SolveSudokuBF(Cell *_cell_ptr, Cell (&_grid)[9][9]);
+bool CheckRow(Cell (&_grid)[9][9], int row,int column,int candidate);
+bool CheckColumn(Cell (&_grid)[9][9], int row,int column,int candidate);
+bool CheckBox(Cell (&_grid)[9][9], int first_box_row,int first_box_column,int candidate);
+bool NumberCheck(Cell (&_grid)[9][9], size_t _row,size_t _column,size_t candidate);
+std::pair<int,int> GetEmptyCell(Cell (&_grid)[9][9] );
+bool SolveSudokuBF(Cell (&_grid)[9][9]);
 
-size_t Cell::ReturnNumberOfPossibleValues(){
+inline size_t Cell::ReturnNumberOfPossibleValues(){
 
     return(this->possible_values.size());
 }
 
-size_t Cell::ReturnNumberOfPeers(){
+inline size_t Cell::ReturnNumberOfPeers(){
 
     return(this->peers.size());
 }
