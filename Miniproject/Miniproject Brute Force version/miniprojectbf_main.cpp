@@ -133,7 +133,7 @@ bool CheckColumn(int row,int column,int candidate){
 
     for(int i = 0; i<9; i++){
         if(sudoku_table[i][column].value == candidate){
-            return false;mini_def
+            return false;
         }
     }
     return true;
