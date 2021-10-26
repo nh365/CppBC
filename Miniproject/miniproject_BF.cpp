@@ -102,7 +102,7 @@ bool SolveSudokuBF(Cell (&_grid)[9][9]){
 
     if(row_and_column.first == 9 && row_and_column.second == 9 ){
         // The table is filled in.
-//        std::cout << "The table is filled in. First check!" << std::endl;
+        std::cout << "The table is filled in. First check!" << std::endl;
         return true;
     }else{
         

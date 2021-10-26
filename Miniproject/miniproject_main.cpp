@@ -159,11 +159,6 @@ bool Cell::IdentifyCandidates(){
 
 bool Cell::NumberCheck(size_t candidate_index){
 
-/*     if(CheckMyRow(candidate_index) && CheckMyColumn(candidate_index) && CheckMyBox(candidate_index)){
-        return true;
-    }
-    return false;
- */
     // For all peers, make sure the proposed value is not solved in any peer
 
     size_t nr_peers = ReturnNumberOfPeers();
@@ -381,6 +376,30 @@ bool SolveEasy(Cell (&_grid)[9][9]){
 }
 
 
+bool SolveDifficult(Cell (&_grid)[9][9]){
+
+    Cell *cell_copy_ptr;
+    // Find the Cell with the lowest number of possible entries.
+    // Set first value and evaluate using brute force...
+    cell_copy_ptr = ReturnCellWithFewestAlternatives(_grid);
+
+    // Use the copied grid first
+//    do
+//    {
+//        // Store the first item to try
+//        size_t candidate_under_test = cell_copy_ptr->possible_values.at(i);
+//        if(cell_copy_ptr->EvaluateCandidates(Grid, GridCopy)){
+//            std::cout << "Solution using brute force:" << std::endl;
+//            PrintGrid(Grid);
+//        }else{
+//            std::cout << "Cannot solve! Try the next alternative..." << std::endl;
+//
+//        }    
+//    } while ( 1 );
+
+    return true;
+}
+
 // END OF SUPPORT FUNCTIONS TO BE MOVED TO SEPARATE CPP-FILE
 // ---------------------------------------------------------
 
@@ -515,24 +534,11 @@ int main(){
 //        PrintGrid(GridCopy);
 //    }
 
-
-    // Find the Cell with the lowest number of possible entries.
-    // Set first value and evaluate using brute force...
-    cell_copy_ptr = ReturnCellWithFewestAlternatives(GridCopy);
-
-    // Use the copied grid first
-//    do
-//    {
-//        // Store the first item to try
-//        size_t candidate_under_test = cell_copy_ptr->possible_values.at(i);
-//        if(cell_copy_ptr->EvaluateCandidates(Grid, GridCopy)){
-//            std::cout << "Solution using brute force:" << std::endl;
-//            PrintGrid(Grid);
-//        }else{
-//            std::cout << "Cannot solve! Try the next alternative..." << std::endl;
-//
-//        }    
-//    } while ( 1 );
+    // Try solving those with few unknowns
+    if (SolveDifficult(GridCopy)){
+        // Copy GridCopy
+        CopyGrid(GridCopy,Grid);
+    }
         
     // Solve the last unknowns with brute force 
     if(SolveSudokuBF(GridCopy)){

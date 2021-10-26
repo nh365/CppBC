@@ -20,10 +20,6 @@ class Cell{
 
     std::vector<Cell*> peers;
 
-    bool CheckMyRow(size_t candidate_index);
-    bool CheckMyColumn(size_t candidate_index);
-    bool CheckMyBox(size_t candidate_index);
-
 public:
     std::vector<size_t> possible_values;
     size_t solved_value;   // Hide in function
@@ -32,9 +28,10 @@ public:
     bool InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, size_t &_column);    
     bool IdentifyCandidates();
     bool EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]);
+    bool NumberCheck(size_t candidate_index);
     size_t ReturnNumberOfPossibleValues();
     size_t ReturnNumberOfPeers();    
-    bool NumberCheck(size_t candidate_index);
+ 
 
 };
 
