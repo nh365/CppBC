@@ -2,7 +2,8 @@
 #include <set>
 #include <iterator>
 
-// Use multiset
+// Uses multiset
+// Can be improved/extended with own search algorithm (binary-search)
 
 int main(){
 
@@ -11,8 +12,6 @@ int main(){
     std::multiset <size_t>::iterator low_iterator,high_iterator;
 
     size_t inserted_number = 0;
-    size_t higher_peer = 0;
-    size_t lower_peer = 0;
 
     for (size_t i = 0; i < 1024; i++)
     {
@@ -39,7 +38,7 @@ int main(){
     std::cout << "Randomized number: " << inserted_number << std::endl;
     std::cout << "Lower peer: " << *low_iterator << " Higher peer: " << *high_iterator << std::endl;
 
-    return 1;
+    return 0;
 }
 
 

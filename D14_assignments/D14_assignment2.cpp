@@ -56,7 +56,6 @@ bool FetchData(field &_data, size_t _input[5]){
 
 bool PositionData(field &_data, uint16_t &_bits){
 
-
     _bits = (_data.speed << 12) | (_data.front << 9) | (_data.rear << 6) | (_data.right << 3) | _data.left;    
 
     return true;
