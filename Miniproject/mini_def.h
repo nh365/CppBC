@@ -70,12 +70,14 @@ bool PrintGrid(Cell (&_grid)[9][9]);
 std::pair<int,int> ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]);
 Cell& _ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]);
 bool CopyGrid(Cell (&_grid_copy)[9][9], Cell (&_grid)[9][9]);
-bool CheckRow(Cell (&_grid)[9][9], int row,int column,int candidate);
-bool CheckColumn(Cell (&_grid)[9][9], int row,int column,int candidate);
-bool CheckBox(Cell (&_grid)[9][9], int first_box_row,int first_box_column,int candidate);
+bool CheckRow(Cell (&_grid)[9][9],const size_t row,const size_t _candidate);
+bool CheckColumn(Cell (&_grid)[9][9],const size_t column,const size_t _candidate);
+bool CheckBox(Cell (&_grid)[9][9],const size_t row,const size_t column,const size_t _candidate);
 bool NumberCheck(Cell (&_grid)[9][9], size_t _row,size_t _column,size_t candidate);
 std::pair<int,int> GetEmptyCell(Cell (&_grid)[9][9] );
 bool SolveSudokuBF(Cell (&_grid)[9][9]);
+bool SetTopLeft(Cell &_cell);
+
 
 inline size_t Cell::ReturnNumberOfPossibleValues(){
 

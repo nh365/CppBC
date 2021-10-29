@@ -7,6 +7,44 @@
 // ---------------------------------------------------------
 // FUNCTIONS THAT WERE MOVED FROM HEADER FILE TO HERE FOR DEBUGGING PURPOSES
 
+bool SetTopLeft(Cell &_cell){
+
+    bool ret_val = true;
+    size_t row = _cell.my_coordinates.row;
+    size_t column = _cell.my_coordinates.column;
+
+    if (row < 3 )
+    {
+        _cell.my_coordinates.box_top_row = 0;
+    } else if ( (2 < row) && (row < 6) )
+    {
+        _cell.my_coordinates.box_top_row = 3;
+    } else if ( (5 < row) && (row < 9) ) 
+    {
+        _cell.my_coordinates.box_top_row = 6;
+    } else {
+        std::cout << "Row is out of bounds." << std::endl;
+        ret_val = false;
+    }
+
+    if (column < 3 )
+    {
+        _cell.my_coordinates.box_left_column = 0;
+    } else if ( (2 < column) && (column < 6) )
+    {
+        _cell.my_coordinates.box_left_column = 3;
+    } else if ( (5 < column) && (column < 9) ) 
+    {
+        _cell.my_coordinates.box_left_column = 6;
+    } else {
+        std::cout << "Column is out of bounds." << std::endl;
+        ret_val = false;
+    }
+
+    return ret_val;
+}
+
+
 // Initialize cells
 bool Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
 
@@ -21,36 +59,12 @@ bool Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
     this->solved_value = 0; // Contains the solved value, contains 0 if unsolved.
     this->my_coordinates.row = _row;
     this->my_coordinates.column = _column;
-//    this->my_coordinates.box_top_row = _row - _row % 3;
-//    this->my_coordinates.box_left_column = _column - _column % 3;
 
-// UGLY INIT OF BOX VALUES...CHANGE LATER
-
-    if (_row < 3 )
-    {
-        this->my_coordinates.box_top_row = 0;
-    } else if ( (2 < _row ) && (_row < 6) )
-    {
-        this->my_coordinates.box_top_row = 3;
-    } else if ( (5 < _row ) && (_row < 9) ) 
-    {
-        this->my_coordinates.box_top_row = 6;
-    } else std::cout << "Row is out of bounds." << std::endl;
-
-    if (_column < 3 )
-    {
-        this->my_coordinates.box_left_column = 0;
-    } else if ( (2 < _column ) && (_column < 6) )
-    {
-        this->my_coordinates.box_left_column = 3;
-    } else if ( (5 < _column ) && (_column < 9) ) 
-    {
-        this->my_coordinates.box_left_column = 6;
-    } else std::cout << "Column is out of bounds." << std::endl;
-
+    // Set the top left coordinates of my square.
+    SetTopLeft(_grid[this->my_coordinates.row][this->my_coordinates.column]);
 
     // Init possible values
-    possible_values_b = 0x01FF;
+    this->possible_values_b = 0x01FF;
     for (size_t i = 1; i < 10; i++)
     {
         possible_values.push_back(i);

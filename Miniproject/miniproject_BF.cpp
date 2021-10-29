@@ -3,12 +3,12 @@
 
 
 
-bool CheckRow(Cell (&_grid)[9][9], int row,int column,int candidate){
-
+bool CheckRow(Cell (&_grid)[9][9],const size_t _row,const size_t candidate){
+    // Returns true if the candidate was NOT found i a peer
     bool ret_val = true;
 
     for(int i = 0; i<9; i++){
-        if(_grid[row][i].solved_value == candidate){
+        if(_grid[_row][i].solved_value == candidate){
             ret_val = false;
             break;
         }
@@ -16,12 +16,12 @@ bool CheckRow(Cell (&_grid)[9][9], int row,int column,int candidate){
     return ret_val;
 }
 
-bool CheckColumn(Cell (&_grid)[9][9], int row,int column,int candidate){
-
+bool CheckColumn(Cell (&_grid)[9][9],const size_t _column,const size_t candidate){
+    // Returns true if the candidate was NOT found i a peer
     bool ret_val = true;
 
     for(int i = 0; i<9; i++){
-        if(_grid[i][column].solved_value == candidate){
+        if(_grid[i][_column].solved_value == candidate){
             ret_val = false;
             break;
         }
@@ -29,12 +29,12 @@ bool CheckColumn(Cell (&_grid)[9][9], int row,int column,int candidate){
     return ret_val;
 }
 
-bool CheckBox(Cell (&_grid)[9][9], int first_box_row,int first_box_column,int candidate){
-
+bool CheckBox(Cell (&_grid)[9][9],const size_t _row,const size_t _column,const size_t candidate){
+    // Returns true if the candidate was NOT found i a peer
     bool ret_val = true;
 
-    for(int i = first_box_row; i<first_box_row+3; i++){
-        for(int j = first_box_column; j<first_box_column+3; j++){
+    for(size_t i = _grid[_row][_column].my_coordinates.box_top_row; i < _grid[_row][_column].my_coordinates.box_top_row +3; i++){
+        for(size_t j = _grid[_row][_column].my_coordinates.box_left_column; j<_grid[_row][_column].my_coordinates.box_left_column +3; j++){
             if(_grid[i][j].solved_value == candidate){
                 ret_val = false;
                 break;
@@ -44,40 +44,14 @@ bool CheckBox(Cell (&_grid)[9][9], int first_box_row,int first_box_column,int ca
     return ret_val;
 }
 
-bool NumberCheck(Cell (&_grid)[9][9], size_t _row,size_t _column,size_t candidate){
+bool NumberCheck(Cell (&_grid)[9][9],const size_t _row,const size_t _column,const size_t _candidate){
+    // Returns true if the candidate was NOT found i a peer
     // Is this a possible number to use in this spot?
     // Check if unused in row, column box.
 
-//    int first_box_row = row - row % 3;
-//    int first_box_column = column - column % 3;
-// UGLY INIT OF BOX VALUES...CHANGE LATER
     bool ret_val = false;
-    int first_box_row = 0;
-    int first_box_column = 0;
 
-    if (_row < 3 )
-    {
-        first_box_row = 0;
-    } else if ( (2 < _row ) && (_row < 6) )
-    {
-        first_box_row = 3;
-    } else if ( (5 < _row ) && (_row < 9) ) 
-    {
-        first_box_row = 6;
-    } else std::cout << "Row is out of bounds." << std::endl;
-
-    if (_column < 3 )
-    {
-        first_box_column = 0;
-    } else if ( (2 < _column ) && (_column < 6) )
-    {
-        first_box_column = 3;
-    } else if ( (5 < _column ) && (_column < 9) ) 
-    {
-        first_box_column = 6;
-    } else std::cout << "Column is out of bounds." << std::endl;
-
-    if(CheckRow(_grid, _row,_column,candidate) && CheckColumn(_grid,_row,_column,candidate) && CheckBox(_grid, first_box_row, first_box_column, candidate)){
+    if(CheckRow(_grid, _row, _candidate) && CheckColumn(_grid, _column, _candidate) && CheckBox(_grid,_row,_column,_candidate)){
         ret_val = true;
     }
     return ret_val;
@@ -158,6 +132,5 @@ bool SolveSudokuBF(Cell (&_grid)[9][9]){
         }
     }
 //    PrintGrid(_grid);
-    return ret_val;   
-
+    return ret_val;
 }
