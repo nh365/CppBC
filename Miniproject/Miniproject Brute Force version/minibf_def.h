@@ -4,6 +4,7 @@
 #include <fstream> // for reading input file
 #include <cstdlib> // for exit function
 
+
 // Data structures
 
 typedef struct sudoku_entry{

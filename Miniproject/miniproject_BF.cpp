@@ -96,13 +96,15 @@ std::pair<int,int> GetEmptyCell(Cell (&_grid)[9][9] ){
 bool SolveSudokuBF(Cell (&_grid)[9][9]){ 
 
     size_t row,column;
-    
+
+//    std::cout << "Entering Brute Force..." << std::endl;
+
     // Get coordintates of first empty cell.
     std::pair<int,int> row_and_column = GetEmptyCell(_grid);
 
     if(row_and_column.first == 9 && row_and_column.second == 9 ){
         // The table is filled in.
-        std::cout << "The table is filled in." << std::endl;
+//        std::cout << "The table is filled in." << std::endl;
         return true;
     }else{
         

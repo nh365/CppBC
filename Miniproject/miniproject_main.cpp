@@ -8,17 +8,16 @@
 // FUNCTIONS THAT WERE MOVED FROM HEADER FILE TO HERE FOR DEBUGGING PURPOSES
 
 // Initialize cells
-bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, size_t &_column){
+bool Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
 
     Cell *grid_ptr = &(_grid[0][0]); // Points to the top of the Grid[0][0]
-    Cell *grid_copy_ptr = &(_grid_copy[0][0]); // TBD: Points to the top of the sandbox (sb) Grid[0][0]    
     Cell *my_cell_ptr = &(_grid[_row][_column]);
     Cell *peer_cell_ptr = nullptr;
-    size_t number_of_peers = 0;
 
     // Receive the instantiated Cell coordinates
     // Init possible value
     // Init all peers
+    this->solved_value_b = 0x0000; // Contains the solved value, contains 0 if unsolved.
     this->solved_value = 0; // Contains the solved value, contains 0 if unsolved.
     this->my_coordinates.row = _row;
     this->my_coordinates.column = _column;
@@ -51,6 +50,7 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
 
 
     // Init possible values
+    possible_values_b = 0x01FF;
     for (size_t i = 1; i < 10; i++)
     {
         possible_values.push_back(i);
@@ -64,9 +64,6 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
             // Create new entry of Cell pointer in peer vector
             // Point peer_cell_ptr to the correct cell.
             this->peers.push_back(&(_grid[my_coordinates.row][i]));             
-            number_of_peers++;
-// std::cout << "Row peer added, the current number of peers are: " << number_of_peers << std::endl;
-
         }
     }
     // Add all column peers, disregard my position
@@ -77,8 +74,6 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
             // Create new entry of Cell pointer in peer vector
             // Point peer_cell_ptr to the correct cell.
             this->peers.push_back(&(_grid[i][my_coordinates.column])); 
-            number_of_peers++;
-// std::cout << "Column peer added, the current number of peers are: " << number_of_peers << std::endl;
         }
     }
     // Add all box peers, disregard my position
@@ -92,8 +87,6 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
                 // Create new entry of Cell pointer in peer vector
                 // Point peer_cell_ptr to the correct cell.                
                 this->peers.push_back(&(_grid[i][j]));
-                number_of_peers++;
-// std::cout << "Unit peer added, the current number of peers are: " << number_of_peers << std::endl;
             }
         }
     }
@@ -106,26 +99,37 @@ bool Cell::InitCell(Cell (&_grid)[9][9],Cell (&_grid_copy)[9][9], size_t &_row, 
 // Find values that are not identified in peers.
 bool Cell::IdentifyCandidates(){
 
+    bool ret_val = false;
     Cell *peer_cell_ptr;
-    size_t number_of_peers = this->peers.size();
     size_t number_of_possible_values = this->possible_values.size();
 
 //     std::cout << "Identifying values in: " << this->my_coordinates.row << "," << this->my_coordinates.column << std::endl;
 
-    if (this->solved_value)
+    // TODO: edit this when migration to bitfield is done.
+    if (this->solved_value_b)
     {
         // This Cell has a solved value.
         // Clear all other possible values.
+        possible_values_b = 0x00;
+        this->possible_values.clear();
+    } else if (this->solved_value)
+    {
+        // This Cell has a solved value.
+        // Clear all other possible values.
+        possible_values_b = 0x00;
         this->possible_values.clear();
     } else {
 
         // For every peer...
-        for (size_t i = 0; i < number_of_peers; i++)
+        for (size_t i = 0; i < NUM_PEERS; i++)
         {
             // ...check if the peer solved_value is anything but 0
             // and if so, remove it from my list of possible values.
+            possible_values_b = possible_values_b ^ this->peers[i]->solved_value_b;
+
+            // Solution without bitfield...TODO! Remove...
             peer_cell_ptr = this->peers[i];
-            if (peer_cell_ptr->solved_value != 0)
+            if (peer_cell_ptr->solved_value != 0) 
             {
                 // There is a value defined.
                 // Remove this value from my possible values.
@@ -151,27 +155,27 @@ bool Cell::IdentifyCandidates(){
             this->solved_value = this->possible_values.front();
             std::cout << "There is only one possible value: " << this->solved_value << " in " << this->my_coordinates.row << "," << this->my_coordinates.column << std::endl;
         
-            return true;  // Value found, return true.
+            ret_val = true;  // Value found, return true.
         }
     }
-    return false; // Still more than one possible value, return false.
+    return ret_val;  // true: only one. false: still more than one possible value, return false.
 }
 
 bool Cell::NumberCheck(size_t candidate_index){
 
+    bool ret_val = false;
     // For all peers, make sure the proposed value is not solved in any peer
 
-    size_t nr_peers = ReturnNumberOfPeers();
-
-    for (size_t i = 0; i < nr_peers; i++)
+    for (size_t i = 0; i < NUM_PEERS; i++)
     {
         if (this->peers.at(i)->solved_value == this->possible_values.at(candidate_index))
         {
             // The value is already in use.
-            return true;
+            ret_val = true;
+            break;
         }
     }
-    return false;
+    return ret_val;
 }
 
 
@@ -193,30 +197,64 @@ collect2: error: ld returned 1 exit status
 */
 
 
-Cell* ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]){
+std::pair<int,int> ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]){
     size_t smallest_found = 9;
     size_t returned_possible = 9;
-    Cell *smallest_ptr = nullptr;
-    Cell *cell_ptr;
+    size_t row,column;
+//    Cell *cell_ptr;
+
+    for (size_t i = 0; i < 9; i++)
+    {
+        for (size_t j = 0; j < 9; j++)
+        {    
+//            cell_ptr = &(_grid[i][j]);
+            returned_possible = _grid[i][j].ReturnNumberOfPossibleValues();  
+            if ( (returned_possible < smallest_found) && (returned_possible > 0))
+            {
+                smallest_found = returned_possible;
+                row = i;
+                column = j;
+//                std::cout << "New smallest detected: " << smallest_found << std::endl;
+                
+            }
+        }
+    }
+    return std::make_pair(row, column);
+}
+
+Cell& _ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]){
+    size_t smallest_found = 9;
+    size_t nr_possible = 9;
+    size_t row,column;
+    Cell *cell_ptr = &(_grid[0][0]);
+    Cell *ret_cell_ptr = nullptr;
 
     for (size_t i = 0; i < 9; i++)
     {
         for (size_t j = 0; j < 9; j++)
         {    
             cell_ptr = &(_grid[i][j]);
-            returned_possible = cell_ptr->ReturnNumberOfPossibleValues();  
-            if ( (returned_possible < smallest_found) && (returned_possible > 0))
+            nr_possible = cell_ptr->ReturnNumberOfPossibleValues();  
+            if ( (nr_possible < smallest_found) && (nr_possible > 0))
             {
-                smallest_found = returned_possible;
-                smallest_ptr = cell_ptr;
+                smallest_found = nr_possible;
+                ret_cell_ptr = &(_grid[i][j]);
 //                std::cout << "New smallest detected: " << smallest_found << std::endl;
-
             }
-            
         }
     }
-    return smallest_ptr;    
+    return *ret_cell_ptr;
 }
+
+
+
+
+
+
+
+
+
+
 
 bool ImportDataFromFile(Cell (&_grid)[9][9]){
 
@@ -323,9 +361,16 @@ bool CopyGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
     {
         for (size_t j = 0; j < 9; j++)
         {
-            _grid_copy[i][j] = _grid[i][j];
+
+            // Information that needs to be copied.
+            // Vector with possible values.
+            // Solved Value
+            for ( size_t k = 0; k < 20; k++){
+                // For each peer, copy its possible value vector.
+                _grid_copy[i][j].peers.at(k)->possible_values = _grid[i][j].peers.at(k)->possible_values;
+            }
+            _grid_copy[i][j].solved_value = _grid[i][j].solved_value;
         }
-        
     }
     return true;
 
@@ -339,7 +384,8 @@ bool InitGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
         {   
 //            cell_ptr = &(Grid[i][j]); 
 //            cell_ptr->InitCell(Grid,GridCopy,i,j);
-            _grid[i][j].InitCell(_grid,_grid_copy,i,j);
+            _grid[i][j].InitCell(_grid,i,j);
+            _grid_copy[i][j].InitCell(_grid_copy,i,j);
         }
     }
     return true;
@@ -374,27 +420,87 @@ bool SolveEasy(Cell (&_grid)[9][9]){
 
 bool SolveDifficult(Cell (&_grid)[9][9]){
 
-    Cell *cell_copy_ptr;
+    bool ret_val = false;
+    Cell *cell_copy_ptr = &(_grid[0][0]);
     size_t value_under_evaluation = 0;
+    size_t row, column;
+
+// ALTERNATIVE 1
 
 
     // Find the Cell with the lowest number of possible entries.
     // Set first value and evaluate using brute force...
-    cell_copy_ptr = ReturnCellWithFewestAlternatives(_grid);
+    cell_copy_ptr = &(_ReturnCellWithFewestAlternatives(_grid));
 
-    if (cell_copy_ptr->ReturnNumberOfPossibleValues() == 2)
+    if (cell_copy_ptr->ReturnNumberOfPossibleValues() < 4)
     {
         // The Cell has two possible values.
         // Choose the first one and see if that works.
-        value_under_evaluation = cell_copy_ptr->possible_values.at(1);
+        value_under_evaluation = cell_copy_ptr->possible_values.at(0);
+        cell_copy_ptr->solved_value = value_under_evaluation;
+    
+        // Remove it from my list of possible values.
+        std::cout << "Setting solved value (" << value_under_evaluation << ") and removing from possible list: " << cell_copy_ptr->my_coordinates.row << "," << cell_copy_ptr->my_coordinates.column << std::endl;
+        cell_copy_ptr->possible_values.erase(std::remove(cell_copy_ptr->possible_values.begin(), cell_copy_ptr->possible_values.end(), value_under_evaluation), cell_copy_ptr->possible_values.end());        
 
         // If this value is present in peers, remove it.
+        for (size_t j = 0; j < NUM_PEERS; j++)
+        {
+            if ( std::find(cell_copy_ptr->peers[j]->possible_values.begin(), cell_copy_ptr->peers[j]->possible_values.end(), value_under_evaluation) != cell_copy_ptr->peers[j]->possible_values.end() ){
+                // The value is available, remove it from possible values.
+                std::cout << "Removing (" << value_under_evaluation << ") from peer possible list: " << cell_copy_ptr->peers[j]->my_coordinates.row << "," << cell_copy_ptr->peers[j]->my_coordinates.column << std::endl;
+                cell_copy_ptr->peers[j]->possible_values.erase(std::remove(cell_copy_ptr->peers[j]->possible_values.begin(), cell_copy_ptr->peers[j]->possible_values.end(), value_under_evaluation), cell_copy_ptr->peers[j]->possible_values.end());                    
+            }
+PrintGrid(_grid);
+        }
+    } else std::cout << "There are only cells with four or more alternatives, use brute force." << std::endl;
 
+    if( SolveDifficult(_grid)){
+        ret_val = true;
+    } else {
 
+        // Solved value restore and put failed value at the end of the vector.
+        cell_copy_ptr->possible_values.push_back(value_under_evaluation);
+        cell_copy_ptr->solved_value = 0;
+    }
 
-        
-    } else std::cout << "There are only cells with three or more alternatives, use brute force." << std::endl;
+// ALTERNATIVE 2
+    // Find the Cell with the lowest number of possible entries.
+    // Set first value and evaluate using brute force...
+/*     std::pair<int,int> row_and_column = ReturnCellWithFewestAlternatives(_grid);
+
+    row = row_and_column.first;
+    column = row_and_column.second;
+
+    if (_grid[row][column].ReturnNumberOfPossibleValues() == 2)
+    {
+        // The Cell has two possible values.
+        // Choose the first one and see if that works.
+        value_under_evaluation = _grid[row][column].possible_values.at(0);
+        _grid[row][column].solved_value = value_under_evaluation;
     
+        // Remove it from my list of possible values.
+        std::cout << "Setting solved value (" << value_under_evaluation << ") and removing from possible list: " << row << "," << column << std::endl;
+        _grid[row][column].possible_values.erase(std::remove(_grid[row][column].possible_values.begin(), _grid[row][column].possible_values.end(), value_under_evaluation), _grid[row][column].possible_values.end());        
+
+        // If this value is present in peers, remove it.
+        for (size_t j = 0; j < NUM_PEERS; j++)
+        {
+            if ( std::find(_grid[row][column].peers[j]->possible_values.begin(), _grid[row][column].peers[j]->possible_values.end(), value_under_evaluation) != _grid[row][column].peers[j]->possible_values.end() ){
+                // The value is available, remove it from possible values.
+                std::cout << "Removing (" << value_under_evaluation << ") from peer possible list: " << _grid[row][column].peers[j]->my_coordinates.row << "," << _grid[row][column].peers[j]->my_coordinates.column << std::endl;
+                _grid[row][column].peers[j]->possible_values.erase(std::remove(_grid[row][column].peers[j]->possible_values.begin(), _grid[row][column].peers[j]->possible_values.end(), value_under_evaluation), _grid[row][column].peers[j]->possible_values.end());                    
+            }
+PrintGrid(_grid);
+        }
+    } else std::cout << "There are only cells with three or more alternatives, use brute force." << std::endl;
+
+ */
+// END OF ALTERNATIVES
+
+
+    PrintGrid(_grid);
+
     // Use the copied grid first
 //    do
 //    {
@@ -409,17 +515,18 @@ bool SolveDifficult(Cell (&_grid)[9][9]){
 //        }    
 //    } while ( 1 );
 
-    return true;
+    return ret_val;
 }
 
 // END OF SUPPORT FUNCTIONS TO BE MOVED TO SEPARATE CPP-FILE
 // ---------------------------------------------------------
 
 
-// Move to header file...
+// Move to other cpp-file...
 // Not yet in use...
 bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){ 
 
+        bool ret_val = false;
         Cell *cell_ptr = &_grid[this->my_coordinates.row][this->my_coordinates.column];
         Cell *cell_copy_ptr = &_grid_copy[this->my_coordinates.row][this->my_coordinates.column];
 
@@ -427,9 +534,6 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
         // Test with the first candidate, then the second etc...
         // Loop for nr of candidates
         size_t nr_candidates = this->ReturnNumberOfPossibleValues();
-        size_t nr_peers = this->ReturnNumberOfPeers();
-//        size_t remaining_values = nr_candidates;
-//        size_t candidate_under_eval = 0;
 
         for (size_t i = 0; i < nr_candidates; i++)
         {
@@ -447,7 +551,7 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
                 this->possible_values.erase(std::remove(this->possible_values.begin(), this->possible_values.end(), this->solved_value), this->possible_values.end());                
 //                cell_copy_ptr->possible_values.erase(cell_copy_ptr->possible_values.begin() + i);
 
-                for (size_t j = 0; j < nr_peers; j++)
+                for (size_t j = 0; j < NUM_PEERS; j++)
                 {
                     if ( std::find(peers[j]->possible_values.begin(), peers[j]->possible_values.end(), this->solved_value) != peers[j]->possible_values.end() ){
                         // The value is available, remove it from possible values.
@@ -456,7 +560,7 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
                     }
                 }
 
-                for (size_t j = 0; j < nr_peers; j++)
+                for (size_t j = 0; j < NUM_PEERS; j++)
                 {
                     
                     std::cout << "Recursive call: " << j << " " << cell_copy_ptr->peers[j]->my_coordinates.row << " " << cell_copy_ptr->peers[j]->my_coordinates.column << std::endl;
@@ -482,7 +586,8 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
                         cell_copy_ptr->possible_values.clear();
                         cell_ptr->possible_values.clear();
                         // Value worked out!
-                        return true;
+                        ret_val = true;
+                        break;
                     }
                 }
             } else {
@@ -494,17 +599,15 @@ bool Cell::EvaluateCandidates(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]){
                 {
                     // Yes, restart (reason to restart is to not miss any possible solutions in vector, re-evaluate later...)
                     i = 0;
-                } else return false;  // No more 
+                } else {
+                    ret_val = false;  // No more 
+                    break;
+                }
             }        
         }
-    
-    return false;   
 
+    return ret_val;   
 }
-
-
-
-
 
 
 int main(){
@@ -527,6 +630,8 @@ int main(){
     PrintGrid(Grid);
 //    PrintGridSimple(Grid);
 
+auto start_program = std::chrono::high_resolution_clock::now();
+
     // Identify possible values and solve the easy ones
     SolveEasy(Grid);
     // Print data for comparison
@@ -543,22 +648,30 @@ int main(){
 //    }
 
     // Try solving those with few unknowns
-    if (SolveDifficult(GridCopy)){
+/*    if (SolveDifficult(GridCopy)){
         // Copy GridCopy
         CopyGrid(GridCopy,Grid);
+
+        std::cout << "GridCopy now copied." << std::endl;
+        PrintGrid(GridCopy);
+        PrintGrid(Grid);
     }
-        
+*/       
     // Solve the last unknowns with brute force 
-    if(SolveSudokuBF(GridCopy)){
+    if(SolveSudokuBF(Grid)){
         std::cout << "Solution using brute force as final step:" << std::endl;
 //        PrintGrid(GridCopy);
-        CopyGrid(GridCopy,Grid); // Copy GridCopy to Grid
+//        CopyGrid(GridCopy,Grid); // Copy GridCopy to Grid
 //        std::cout << "Copied back to Grid:" << std::endl;            
         PrintGridSimple(Grid);
     }else{
         std::cout << "Cannot solve!" << std::endl;
-        PrintGrid(GridCopy);
+        PrintGrid(Grid);
     }
+
+    auto end_program = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_program - start_program);
+    std::cout << "Total execution time (ms): " << duration.count() << std::endl;
 
     return(0);
 }
