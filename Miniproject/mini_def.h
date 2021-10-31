@@ -75,6 +75,8 @@ public:
 // Function declarations
 bool ImportDataFromFile(Cell (&_grid)[9][9]);
 bool PrintGrid(Cell (&_grid)[9][9]);
+bool PrintGridSimple(Cell (&_grid)[9][9]);
+bool PrintGridSimpleBinary(Cell (&_grid)[9][9]);
 std::pair<int,int> ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]);
 Cell& _ReturnCellWithFewestAlternatives(Cell (&_grid)[9][9]);
 bool CopyGrid(Cell (&_grid_copy)[9][9], Cell (&_grid)[9][9]);
@@ -87,7 +89,6 @@ bool SolveSudokuBF(Cell (&_grid)[9][9]);
 bool SetTopLeft(Cell &_cell);
 bool InitGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]);
 bool SolveEasy(Cell (&_grid)[9][9]);
-bool PrintGridSimple(Cell (&_grid)[9][9]);
 
 inline size_t Cell::ReturnNumberOfPossibleValues(){
 

@@ -2,7 +2,7 @@ compiler = g++
 
 all: miniproject_main.cpp 
 	@echo all
-	$(compiler) miniproject_main.cpp miniproject_cell.cpp miniproject_grid.cpp miniproject_BF.cpp -I. -o miniproject 
+	$(compiler) miniproject_main.cpp miniproject_cell.cpp miniproject_grid.cpp miniproject_BF.cpp mini_def.h -I. -o miniproject 
 
 
 clean: 

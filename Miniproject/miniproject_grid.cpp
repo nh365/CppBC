@@ -23,6 +23,29 @@ bool PrintGridSimple(Cell (&_grid)[9][9]){
     return true;
 }
 
+bool PrintGridSimpleBinary(Cell (&_grid)[9][9]){
+
+    int row = 0, column = 0;
+
+    std::cout << "Printing binary result:" << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+
+    for(row = 0; row < 9; row++){
+
+        if ((row == 3)||(row == 6)||(row == 9)) std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+
+        for(column = 0; column < 9; column++)
+        {
+            if ((column == 0)||(column == 3)||(column == 6)) std::cout << "| ";            
+            std::cout <<  (std::bitset<16>) _grid [row] [column].solved_value_b << " ";
+            if (column == 8) std::cout << "|";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    return true;
+}
+
 bool PrintGrid(Cell (&_grid)[9][9]){
 
     int row = 0, column = 0;

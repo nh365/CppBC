@@ -5,16 +5,52 @@ bool ImportDataFromFile(Cell (&_grid)[9][9]){
 
     std::ifstream indata ("inputfile2.txt");
 
+    size_t imported_value;
+
     if(indata.is_open()){
         
-        int row = 0, column = 0;
+        size_t row = 0, column = 0;
         
         for (row = 0; row < 9; row++)
         {
             for (column = 0; column < 9; column++)
             {
-                indata >> _grid[row][column].solved_value;
+                indata >> imported_value; 
+                _grid[row][column].solved_value = imported_value;
 
+                switch (imported_value)
+                {
+                    case 1:
+                        SET(_grid[row][column].solved_value_b,VALUE1);
+                        break;
+                    case 2:
+                        SET(_grid[row][column].solved_value_b,VALUE2);
+                        break;
+                    case 3:
+                        SET(_grid[row][column].solved_value_b,VALUE3);
+                        break;
+                    case 4:
+                        SET(_grid[row][column].solved_value_b,VALUE4);
+                        break;
+                    case 5:
+                        SET(_grid[row][column].solved_value_b,VALUE5);
+                        break;
+                    case 6:
+                        SET(_grid[row][column].solved_value_b,VALUE6);
+                        break;
+                    case 7:
+                        SET(_grid[row][column].solved_value_b,VALUE7);
+                        break;
+                    case 8:
+                        SET(_grid[row][column].solved_value_b,VALUE8);
+                        break;
+                    case 9:
+                        SET(_grid[row][column].solved_value_b,VALUE9);
+                        break;
+                    default:
+                        _grid[row][column].solved_value_b = 0;
+                        break;                    
+                }
 //                 std::cout << "Added cell value:" << _grid[row][column].solved_value << std::endl;
             }
         }
@@ -50,6 +86,7 @@ int main(){
     ImportDataFromFile(Grid);
     std::cout << "Input table:" << std::endl;
     PrintGrid(Grid);
+    PrintGridSimpleBinary(Grid);
 //    PrintGridSimple(Grid);
 
 auto start_program = std::chrono::high_resolution_clock::now();
