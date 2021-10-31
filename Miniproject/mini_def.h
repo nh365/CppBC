@@ -85,7 +85,9 @@ bool NumberCheck(Cell (&_grid)[9][9], size_t _row,size_t _column,size_t candidat
 std::pair<int,int> GetEmptyCell(Cell (&_grid)[9][9] );
 bool SolveSudokuBF(Cell (&_grid)[9][9]);
 bool SetTopLeft(Cell &_cell);
-
+bool InitGrid(Cell (&_grid)[9][9], Cell (&_grid_copy)[9][9]);
+bool SolveEasy(Cell (&_grid)[9][9]);
+bool PrintGridSimple(Cell (&_grid)[9][9]);
 
 inline size_t Cell::ReturnNumberOfPossibleValues(){
 
