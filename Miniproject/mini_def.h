@@ -3,11 +3,28 @@
 #include <iostream>
 #include <fstream>      // for reading input file
 #include <cstdlib>      // for exit function
+#include <bitset>
 #include <vector> 
 #include <algorithm>    // To search in vector. TODO: Can be removed when bits are introduced.
 #include <chrono>       // Use for (time) performance measure...
 
 // Definitions
+#define SET(x,y) x |= (1 << y)
+#define CLEAR(x,y) x &= ~(1<< y)
+#define READ(x,y) ((0u == (x & (1<<y)))?0u:1u)
+#define TOGGLE(x,y) (x ^= (1<<y))  // May not be needed
+#define VALUE1 0
+#define VALUE2 1
+#define VALUE3 2
+#define VALUE4 3
+#define VALUE5 4
+#define VALUE6 5
+#define VALUE7 6
+#define VALUE8 7
+#define VALUE9 8
+#define SET_ALL_VALUES 0b0000000011111111
+#define CLEAR_ALL_VALUES 0b1111111100000000
+
 const size_t NUM_PEERS = 20;
 
 // Data structures
@@ -19,35 +36,26 @@ typedef struct position{
     size_t box_left_column;    
 }Pos_t;
 
-typedef struct candidate_field{
-    unsigned  c1:1;
-    unsigned  c2:2;
-    unsigned  c3:3;
-    unsigned  c4:4;      
-    unsigned  c5:5;
-    unsigned  c6:6;
-    unsigned  c7:7;
-    unsigned  c8:8;           
-    unsigned  c9:9;           
-}Candidate_T;
+typedef struct Unit{
 
-typedef struct mask_field{
-    uint16_t mask1 = 0b0000000000000001;
-    uint16_t mask2 = 0b0000000000000010;
-    uint16_t mask3 = 0b0000000000000100;
-    uint16_t mask4 = 0b0000000000001000;
-    uint16_t mask5 = 0b0000000000010000;
-    uint16_t mask6 = 0b0000000000100000;
-    uint16_t mask7 = 0b0000000001000000;
-    uint16_t mask8 = 0b0000000010000000;
-    uint16_t mask9 = 0b0000000100000000;
-}Mask_T;
+    size_t unit_nr;         // Which row, column or box am I. For box: numbered 0 through 8: row 0 column 0 -> box 0, row 1 col 0 -> box 3...
+    uint16_t unit_state_b;  // bit 0-8 cell value set, bit 9 unit complete
+}Unit_t;
+
+class Grid{
+
+    Unit_t row_unit[9]; 
+    Unit_t column_unit[9];
+    Unit_t box_unit[9];
+    std::pair<size_t,size_t> lowest_nr_of_candidates;   // Cell with lowest number of candidates, first is row, second is column
+    size_t number_of_solved_squares;
+};
+
 
 class Cell{
 // Variables
 
 public:
-
     uint16_t possible_values_b;
     uint16_t solved_value_b;
     std::vector<size_t> possible_values;

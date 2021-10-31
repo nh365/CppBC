@@ -48,9 +48,9 @@ bool SetTopLeft(Cell &_cell){
 // Initialize cells
 bool Cell::InitCell(Cell (&_grid)[9][9], size_t &_row, size_t &_column){
 
-    Cell *grid_ptr = &(_grid[0][0]); // Points to the top of the Grid[0][0]
-    Cell *my_cell_ptr = &(_grid[_row][_column]);
-    Cell *peer_cell_ptr = nullptr;
+//    Cell *grid_ptr = &(_grid[0][0]); // Points to the top of the Grid[0][0]
+//    Cell *my_cell_ptr = &(_grid[_row][_column]);
+//    Cell *peer_cell_ptr = nullptr;
 
     // Receive the instantiated Cell coordinates
     // Init possible value
