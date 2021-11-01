@@ -34,6 +34,7 @@ int main(){
     }
    std::cout << std::endl;
    std::cout << static_cast<int>('Z'-'A') << std::endl;
+   std::cout << static_cast<int>("Z"-"A") << std::endl;
 }
 
 //            int y = static_cast<int>('Z'-'A');
