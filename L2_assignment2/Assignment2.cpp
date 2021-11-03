@@ -8,44 +8,47 @@ typedef struct list_item{
 }Node_t;
 
 
-Node_t *findLast(Node_t *LinkedList){
-    if(LinkedList==nullptr)
+Node_t *findLast(Node_t * const _ll){
+
+    Node_t *current = _ll; // Create a two pointers of Node_t type assign the start of the list to "current".
+
+    if(current==nullptr)
     {
-        return(LinkedList);
+        return(current);
     }
-    Node_t *current = LinkedList; // Create a two pointers of Node_t type assign the start of the list to "current".
+
     while(current->next_item != nullptr){
         current = current->next_item;
     }
     return(current);
 }
 
- void add_value(Node_t *LinkedList)
+ Node_t* add_value(Node_t *_ll)
 {
     //1) Find the last item
     //2) Create new
     //3) Assign and link
-    Node_t *newNode, *lastNode = LinkedList; // Create a two pointers of Node_t type assign the start of the list to "current".
+    Node_t *firstNode = _ll, *newNode, *lastNode = _ll; // Create a two pointers of Node_t type assign the start of the list to "current".
 
-    if (LinkedList == nullptr)
+    if (firstNode == nullptr)
     {
-        LinkedList = new Node_t;
-        LinkedList->content = rand() %50;
+        firstNode = new Node_t;
+        firstNode->content = rand() %50;
+        firstNode->next_item = nullptr;
+
 //        std::cout << "added random value: ";
-//        std::cout << LinkedList->content << std::endl;
-        LinkedList->next_item = nullptr;
-    } else 
-    {
+//        std::cout << firstNode->content << std::endl;
+    } else {
         newNode = new Node_t;
-        lastNode = findLast(LinkedList);
+        lastNode = findLast(_ll);
         lastNode->next_item = newNode;
         newNode->content = rand() %50;
+        newNode->next_item = nullptr;
 //        std::cout << "added random value: ";
 //        std::cout << newNode->content << std::endl;
-
     }
     
-    return;
+    return firstNode;
 }
 
 Node_t *remove_value(Node_t *LinkedList) //Simple way when returning pointer as opposed to using a reference.
@@ -62,45 +65,79 @@ Node_t *remove_value(Node_t *LinkedList) //Simple way when returning pointer as 
     return(next);
 }
 
- void remove_index(Node_t *LinkedList, const int &_index){
+ Node_t* remove_index(Node_t *LinkedList, const int &_index){
 
  //   Node_t *previous = LinkedList[_index-1];    // Funkar inte
  //   Node_t *next = LinkedList[_index + 1];      // Funkar inte
 
-    Node_t *previous, *next;
+    Node_t *previous, *next, *to_be_removed, *ret_val = nullptr;
     
-    size_t i = 0;
     // Init
     // There is more than one item in the list.
     // Assing the next item to next.
     // Assuming that the _index is within range...!
-    if (LinkedList != nullptr && LinkedList->next_item != nullptr )
+    if (LinkedList == nullptr) {
+        // The list is empty
+        ret_val = LinkedList;
+    } else if (LinkedList->next_item == nullptr)
     {
-        next = LinkedList->next_item;
+        // There is only one item in the list.
+        if (_index != 1)
+        {
+            // The index is out of range.
+            // This can probably be found at an earlier stage.
+            std::cout << "The index is out of range." << std::endl;
+            ret_val = LinkedList;
+        } else {
+            // Delete instance...
+            // TODO!
+            ret_val = nullptr;
+        }
+    } else {
+
+        // Init values
+        previous = LinkedList; 
+        next = LinkedList;
+
+        if (_index == 1)
+        {
+            // Remove the first item
+            to_be_removed = LinkedList; // remove the head
+            next = to_be_removed->next_item;
+            delete to_be_removed;
+            // LinkedList = next;
+            ret_val = next; // Return new head
+
+        } else if (_index == 2)
+        {
+            // Remove the second index
+            to_be_removed = LinkedList->next_item; 
+            next = to_be_removed->next_item;
+            delete to_be_removed;
+            previous->next_item = next;
+            ret_val = LinkedList;   // Return head
+        } else {
+            // Remove any other index
+
+
+            // Find the index to remove
+            for (size_t i = 0; i < (_index - 2); i++)
+            {
+                previous = previous->next_item; // previous now points to the one before the index to remove.
+                next = next->next_item;     // next now points to the one before the index to remove. Add two...
+            }
+            // Now previous and next point to the item before the one to be removed.
+            // previous should remain here but next should be stepped up to the one after
+            to_be_removed = previous->next_item;
+            next = to_be_removed->next_item;
+            delete to_be_removed;
+            previous->next_item = next;
+
+            ret_val = LinkedList;   // Return head
+        }
     }
 
-    while(( LinkedList != nullptr) && (i < _index))
-    {
-        previous = LinkedList->next_item; // previous now points to the one before the index to remove.
-        next = LinkedList->next_item;     // next now points to the one before the index to remove. Add two...
-
-        i++;
-    }
-
-    while(( LinkedList != nullptr) && (i < (_index + 2)))
-    {
-
-        next = LinkedList->next_item;
-
-        i++;
-    }
-
-    if (LinkedList[_index] != nullptr)
-    {
-        previous->next_item = next;
-
-        delete LinkedList;
-    }
+    return ret_val;
 }
 
 void print_values(Node_t *LinkedList){
@@ -125,12 +162,14 @@ void print_values(Node_t *LinkedList){
 
 int main(){
 
+//    Node_t *LinkedList = new Node_t;
     Node_t *LinkedList = nullptr;
     int delete_index;
 
     for(size_t i = 0; i<10;i++)
     {
-        add_value(LinkedList);
+        // add_value returns the first initialized cell in the list
+        LinkedList = add_value(LinkedList);
     }
 
     print_values(LinkedList);
@@ -138,7 +177,9 @@ int main(){
     std::cout << "Which item do you want to remove (enter index)? ";
     std::cin >> delete_index;
 
-    remove_index(LinkedList, delete_index);
+    LinkedList = remove_index(LinkedList, delete_index);
+
+    print_values(LinkedList);
 
     for(size_t i = 0; i<10;i++)
     {
