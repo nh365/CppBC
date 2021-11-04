@@ -1,5 +1,7 @@
 
-#include "main.h"
+#include <vector>
+#include "customer.h"
+#include "workorder.h"
 
 class Workshop{
 // Attributes:
@@ -8,7 +10,8 @@ public:
     std::string myName;
     std::vector<Customer*> myCustomers;
     std::vector<Services*> myServices;
-//    Inventory
+    std::vector<WorkOrder*> myWorkOrders;
+//    Add parts inventory
 
 
 //Methods: 
@@ -22,8 +25,9 @@ public:
     Services* AddService(std::string _service_name, size_t _cost, size_t _time);
     // RemoveService(...); LATER...
 
+    void PrintMyServices();
     void PrintMyCustomers();
-
+    void PrintMyWorkOrders();
 };
 
 

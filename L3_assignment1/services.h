@@ -1,6 +1,4 @@
-#include <vector>
 #include <string>
-#include <iostream>
 
 typedef struct services
 {
@@ -13,9 +11,13 @@ typedef struct services
 class Services{
 public:
 
-    std::vector<Service_T*> AvailableServices;
+    Service_T myService;
+//    Services(std::string _serviceName, size_t _cost, size_t _time):myService.serviceName(_serviceName), myService.cost(_cost), myService->time(_time) {}
+    Services(std::string _serviceName, size_t _cost, size_t _time);
 
-    void AddService(std::string _serviceName, size_t _cost, size_t _time);
-    void ListAvailableServices();
+//    std::vector<Service_T*> AvailableServices;
+//    void AddService(std::string _serviceName, size_t _cost, size_t _time);
+//    void ListAvailableServices();
 
 };
+
